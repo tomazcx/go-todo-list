@@ -26,7 +26,6 @@ func getList(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
 	err = tmpl.Execute(w, todoList.Data)
 
 	if err != nil {
@@ -37,7 +36,7 @@ func getList(w http.ResponseWriter, r *http.Request) {
 
 func createTodo(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
@@ -64,9 +63,41 @@ func createTodo(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
 
+func toggleTodo(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method != http.MethodPost {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+
+	err := r.ParseForm()
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	id, err := strconv.Atoi(r.FormValue("id"))
+
+	if err != nil {
+		http.Error(w, "Invalid ID type", http.StatusUnprocessableEntity)
+		return
+	}
+
+	for i := range todoList.Data {
+		todo := &todoList.Data[i]
+		if todo.ID == id {
+			todo.Completed = !todo.Completed
+			break
+		}
+	}
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+}
+
 func deleteTodo(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 
@@ -83,9 +114,10 @@ func deleteTodo(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		http.Error(w, "Invalid ID type", http.StatusUnprocessableEntity)
+		return
 	}
 
-	todoList.Data = append(todoList.Data[:int(idToDelete)-1], todoList.Data[idToDelete:]...)
+	todoList.Data = append(todoList.Data[:idToDelete-1], todoList.Data[idToDelete:]...)
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 
@@ -96,6 +128,7 @@ func main() {
 
 	http.HandleFunc("/", getList)
 	http.HandleFunc("/create-todo", createTodo)
+	http.HandleFunc("/toggle-todo", toggleTodo)
 	http.HandleFunc("/delete-todo", deleteTodo)
 
 	fmt.Println("Server is now running at port 8000 🚀")

@@ -41,14 +41,20 @@
         <li
           class="w-full rounded-lg shadow-lg bg-white p-2 flex justify-between items-center"
         >
-          <span>{{.ID}} - Item: {{.Name}}</span>
-          <form method="post" action="/delete-todo">
-            <input value="{{.ID}}" type="hidden" name="id" id="id" /><button
-              class="text-red-400 hover:text-red-500"
-            >
-              Deletar
-            </button>
-          </form>
+          <span class="{{if .Completed}}line-through{{end}}">{{.ID}} - {{.Name}}</span>
+          <span class="flex items-center gap-4">
+            <form method="post" action="/toggle-todo">
+                <input type="hidden" value="{{.ID}}" name="id" id="id" {{if .Completed}}checked{{end}} />
+                <button class="p-2 rounded-lg bg-green-400 hover:bg-green-500 transition-colors text-white">{{if .Completed}} Reativar {{else}} Completar {{end}}</button>
+             </form>
+            <form method="post" action="/delete-todo">
+              <input value="{{.ID}}" type="hidden" name="id" id="id" /><button
+                class="text-red-400 hover:text-red-500"
+              >
+                Deletar
+              </button>
+            </form>
+          </span>
         </li>
         {{end}}
       </ul>
