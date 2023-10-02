@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"os"
 	"strconv"
 )
 
@@ -131,6 +132,12 @@ func main() {
 	http.HandleFunc("/toggle-todo", toggleTodo)
 	http.HandleFunc("/delete-todo", deleteTodo)
 
-	fmt.Println("Server is now running at port 8000 🚀")
-	http.ListenAndServe(":8000", nil)
+	port := os.Getenv("PORT")
+
+	if port == "" {
+		port = "8000"
+	}
+
+	fmt.Println("Server is now running at port " + port + " 🚀")
+	http.ListenAndServe(":"+port, nil)
 }
