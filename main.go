@@ -14,20 +14,16 @@ type Todo struct {
 	Completed bool
 }
 
-type TodoList struct {
-	Data []Todo
-}
-
-var todoList TodoList
+var todoList []Todo
 
 func getList(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFiles("./templates/list.html")
+	tmpl, err := template.ParseFiles("./src/templates/list.html")
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	err = tmpl.Execute(w, todoList.Data)
+	err = tmpl.Execute(w, todoList)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -51,15 +47,15 @@ func createTodo(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
 	var id int
 
-	if len(todoList.Data) == 0 {
+	if len(todoList) == 0 {
 		id = 0
 	} else {
-		id = todoList.Data[len(todoList.Data)-1].ID
+		id = todoList[len(todoList)-1].ID
 	}
 
 	todo := Todo{id + 1, name, false}
 
-	todoList.Data = append(todoList.Data, todo)
+	todoList = append(todoList, todo)
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }
@@ -85,8 +81,8 @@ func toggleTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for i := range todoList.Data {
-		todo := &todoList.Data[i]
+	for i := range todoList {
+		todo := &todoList[i]
 		if todo.ID == id {
 			todo.Completed = !todo.Completed
 			break
@@ -118,7 +114,15 @@ func deleteTodo(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	todoList.Data = append(todoList.Data[:idToDelete-1], todoList.Data[idToDelete:]...)
+	var newList []Todo
+
+	for _, todo := range todoList {
+		if todo.ID != idToDelete {
+			newList = append(newList, todo)
+		}
+	}
+
+	todoList = newList
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 
