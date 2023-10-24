@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    volumes:
+      - .:/usr/local/app
+    ports:
+      - 3000:3000
+    command: air ./main.go -b 127.0.0.1
+    depends_on:
+      - db
+      - pgadmin
+  db:
+    image: postgres:alpine
+    ports: 
+      - 5432:5432
+    volumes:
+      - postgres-db:/var/lib/postresql/data
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+  pgadmin:
+    image: dpage/pgadmin4
+    tty: true
+    ports:
+      - 5050:80
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD}
+    depends_on:
+      - db
+
+
+volumes:
+  postgres-db: 
