@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/tomazcx/go-todo-list/application/routes"
 	infra "github.com/tomazcx/go-todo-list/infra/db"
 )
 
@@ -15,7 +16,7 @@ func main() {
 
 	//Load the env file
 	if err := godotenv.Load(); err != nil {
-		log.Fatalf("Error loading .env file", err)
+		log.Fatalf("Error loading .env file: %v", err)
 	}
 
 	dbhost := os.Getenv("DB_HOST")
@@ -33,11 +34,7 @@ func main() {
 
 	port := os.Getenv("PORT")
 
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		message := []byte("Hello World Reloaded!")
-
-		w.Write(message)
-	})
+	routes.TaskRoutes()
 
 	if port == "" {
 		port = "3000"

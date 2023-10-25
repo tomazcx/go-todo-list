@@ -26,7 +26,7 @@ func ConnectToDB(connStr string) error {
 		return err
 	}
 
-	query := "CREATE TABLE IF NOT EXISTS todo (id SERIAL PRIMARY KEY, name VARCHAR(255), completed BOOLEAN)"
+	query := "CREATE TABLE IF NOT EXISTS task (id SERIAL PRIMARY KEY, name VARCHAR(255), completed BOOLEAN)"
 	_, err = db.Exec(query)
 
 	if err != nil {
