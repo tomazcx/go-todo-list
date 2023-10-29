@@ -26,14 +26,6 @@ func ConnectToDB(connStr string) error {
 		return err
 	}
 
-	query := "CREATE TABLE IF NOT EXISTS task (id SERIAL PRIMARY KEY, name VARCHAR(255), completed BOOLEAN)"
-	_, err = db.Exec(query)
-
-	if err != nil {
-		log.Fatalf("Failed to create todo table: %v", err)
-		return err
-	}
-
 	return nil
 }
 
@@ -46,5 +38,23 @@ func GetDB() (*sql.DB, error) {
 	return db, nil
 }
 
-func TodoTable() {
+func InitTables() error {
+	query := "CREATE TABLE IF NOT EXISTS task (id SERIAL PRIMARY KEY, name VARCHAR(255), completed BOOLEAN, createdAt TIMESTAMP)"
+	_, err := db.Exec(query)
+
+	if err != nil {
+		log.Fatalf("Failed to create task table: %v", err)
+		return err
+	}
+
+	query = "CREATE TABLE IF NOT EXISTS account (id SERIAL PRIMARY KEY, login VARCHAR(255), password VARCHAR(255))"
+	_, err = db.Exec(query)
+
+	if err != nil {
+		log.Fatalf("Failed to create user table: %v", err)
+		return err
+	}
+
+	return nil
+
 }

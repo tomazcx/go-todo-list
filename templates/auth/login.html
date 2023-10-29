@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <script src="https://cdn.jsdelivr.net/npm/@unocss/runtime"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@unocss/reset/tailwind.min.css"
+    />
+    <script src="https://unpkg.com/htmx.org@1.9.6"></script>
+  </head>
+  <body class="bg-teal-100">
+    <form
+      hx-post="/auth/login"
+      hx-target="#errorMessage"
+      hx-swap="innerHTML"
+      hx-indicator="#spinner"
+      class="bg-white top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 absolute rounded-lg shadow-lg p-4 flex flex-col items-center gap-2"
+    >
+      <div class="text-center mb-4">
+        <h1 class="text-2xl font-semibold mb-2">Login</h1>
+        <p class="text-slate-700">
+          Login into your account to continue using your list.
+        </p>
+      </div>
+      <div class="flex flex-col gap-2 w-full">
+        <div class="flex flex-col gap-1">
+          <label for="login">Login</label>
+          <input
+            type="text"
+            name="login"
+            id="login"
+            class="bg-slate-100 rounded-lg p-2"
+          />
+        </div>
+        <div class="flex flex-col gap-1">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            name="password"
+            id="password"
+            class="bg-slate-100 rounded-lg p-2"
+          />
+        </div>
+      </div>
+      <div class="w-full">
+        <span id="errorMessage" class="text-red-400 mb-2 block"></span>
+        <button
+          class="px-8 py-2 w-full rounded-lg hover:bg-teal-500 transition-colors bg-teal-300"
+        >
+          Submit
+        </button>
+        <span class="text-center block mt-2"
+          >Don't have an account?
+          <a
+            class="text-teal-400 underline hover:text-teal-500 transition-colors"
+            href="/register"
+            >Click here to create one</a
+          ></span
+        >
+      </div>
+    </form>
+  </body>
+</html>

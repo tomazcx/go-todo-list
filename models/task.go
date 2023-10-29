@@ -13,7 +13,7 @@ type Task struct {
 	Completed bool
 }
 
-func Index() ([]Task, error) {
+func (t *Task) Index() ([]Task, error) {
 	db, err := infra.GetDB()
 
 	if err != nil {
@@ -21,11 +21,11 @@ func Index() ([]Task, error) {
 		return nil, err
 	}
 
-	query := "SELECT * FROM task"
+	query := "SELECT id, name, completed FROM task ORDER BY createdat"
 	rows, err := db.Query(query)
 
 	if err != nil {
-		log.Fatal("Error running the SQL query.")
+		log.Fatal(fmt.Sprintf("Error running the SQL query: %v", err))
 		return nil, err
 	}
 	defer rows.Close()
@@ -35,7 +35,7 @@ func Index() ([]Task, error) {
 	for rows.Next() {
 		var item Task
 		if err := rows.Scan(&item.Id, &item.Name, &item.Completed); err != nil {
-			log.Fatal("Error running the SQL query.")
+			log.Fatal(fmt.Sprintf("Error scanning the row: %v", err))
 			return nil, err
 		}
 
@@ -46,14 +46,14 @@ func Index() ([]Task, error) {
 
 }
 
-func CreateTask(name string) (Task, error) {
+func (t *Task) Create(name string) (Task, error) {
 	db, err := infra.GetDB()
 
 	if err != nil {
 		log.Fatal("Error getting the DB instance.")
 		return Task{}, err
 	}
-	query := "INSERT INTO task (name, completed) VALUES ($1, false) RETURNING id, name, completed"
+	query := "INSERT INTO task (name, completed, createdAt) VALUES ($1, false, NOW()) RETURNING id, name, completed"
 
 	var task Task
 
@@ -68,7 +68,29 @@ func CreateTask(name string) (Task, error) {
 	return task, nil
 }
 
-func DeleteTask(id uint) error {
+func (t *Task) ToggleCompleted(taskId uint) (Task, error) {
+	db, err := infra.GetDB()
+
+	if err != nil {
+		log.Fatal("Error getting the DB instance.")
+		return Task{}, err
+	}
+
+	var result Task
+	query := "UPDATE task SET completed = NOT completed WHERE id=$1 RETURNING id, name, completed"
+
+	err = db.QueryRow(query, taskId).Scan(&result.Id, &result.Name, &result.Completed)
+
+	if err != nil {
+		log.Fatal(fmt.Sprintf("Error updating the task: %v", err))
+		return Task{}, err
+	}
+
+	return result, nil
+
+}
+
+func (t *Task) Delete(id uint) error {
 
 	db, err := infra.GetDB()
 

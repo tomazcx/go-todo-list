@@ -7,7 +7,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
-	"github.com/tomazcx/go-todo-list/application/routes"
+	"github.com/tomazcx/go-todo-list/application"
 	infra "github.com/tomazcx/go-todo-list/infra/db"
 )
 
@@ -32,9 +32,15 @@ func main() {
 		fmt.Println("Connected to database!")
 	}
 
+	err = infra.InitTables()
+
+	if err == nil {
+		fmt.Println("Created tables!")
+	}
+
 	port := os.Getenv("PORT")
 
-	routes.TaskRoutes()
+	application.Router()
 
 	if port == "" {
 		port = "3000"

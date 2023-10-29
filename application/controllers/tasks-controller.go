@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"bytes"
 	"html/template"
 	"net/http"
 	"strconv"
@@ -9,8 +8,17 @@ import (
 	"github.com/tomazcx/go-todo-list/models"
 )
 
-func TodoListHome(w http.ResponseWriter, r *http.Request) {
-	tasks, err := models.Index()
+type TaskController struct{}
+
+func (tc *TaskController) Index(w http.ResponseWriter, r *http.Request) {
+
+	if r.URL.Path != "/" {
+		template.Must(template.ParseFiles("./templates/not-found.html")).Execute(w, nil)
+		return
+	}
+
+	taskModel := models.Task{}
+	tasks, err := taskModel.Index()
 	if err != nil {
 		http.Error(w, "Internal server error: Error fetching the tasks from the database.", http.StatusInternalServerError)
 		return
@@ -18,7 +26,7 @@ func TodoListHome(w http.ResponseWriter, r *http.Request) {
 	template.Must(template.ParseFiles("./templates/index.html", "./templates/partials/task.html")).Execute(w, tasks)
 }
 
-func CreateTask(w http.ResponseWriter, r *http.Request) {
+func (tc *TaskController) CreateTask(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -30,9 +38,10 @@ func CreateTask(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal server error: Error parsing the form", http.StatusInternalServerError)
 		return
 	}
+	taskModel := models.Task{}
 
 	taskName := r.FormValue("name")
-	task, err := models.CreateTask(taskName)
+	task, err := taskModel.Create(taskName)
 
 	if err != nil {
 		http.Error(w, "Internal server error: Error creating the task", http.StatusInternalServerError)
@@ -42,7 +51,31 @@ func CreateTask(w http.ResponseWriter, r *http.Request) {
 	template.Must(template.ParseFiles("./templates/partials/task.html")).Execute(w, task)
 }
 
-func DeleteTask(w http.ResponseWriter, r *http.Request) {
+func (tc *TaskController) ToggleCompleted(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPatch {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	idFromQuery := r.URL.Query().Get("id")
+	id, err := strconv.Atoi(idFromQuery)
+
+	if err != nil {
+		http.Error(w, "Error: invalid ID", http.StatusUnprocessableEntity)
+	}
+
+	taskModel := models.Task{}
+	task, err := taskModel.ToggleCompleted(uint(id))
+
+	if err != nil {
+		http.Error(w, "Internal server error: Error updating the task", http.StatusInternalServerError)
+		return
+	}
+
+	template.Must(template.ParseFiles("./templates/partials/task.html")).Execute(w, task)
+}
+
+func (tc *TaskController) DeleteTask(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -55,30 +88,12 @@ func DeleteTask(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Error: invalid ID", http.StatusUnprocessableEntity)
 	}
 
-	err = models.DeleteTask(uint(id))
+	taskModel := models.Task{}
+	err = taskModel.Delete(uint(id))
 
 	if err != nil {
 		http.Error(w, "Internal server error: Error deleting the task", http.StatusInternalServerError)
 		return
 	}
-
-	tasks, err := models.Index()
-	if err != nil {
-		http.Error(w, "Internal server error: Error fetching the tasks from the database.", http.StatusInternalServerError)
-		return
-	}
-
-	taskTmpl := template.Must(template.ParseFiles("./templates/partials/task.html"))
-
-	var buf bytes.Buffer
-	for _, task := range tasks {
-		if err = taskTmpl.Execute(&buf, task); err != nil {
-			http.Error(w, "Internal server error: Error rendering the task template.", http.StatusInternalServerError)
-			return
-		}
-	}
-
-	w.Header().Set("Content-Type", "text/html")
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(buf.String()))
+	w.Write([]byte(""))
 }

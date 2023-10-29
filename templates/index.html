@@ -12,9 +12,9 @@
     <main class=" mx-auto flex items-center pt-56 min-h-screen gap-4 flex-col  w-10/12 max-w-[600px]">
       <form hx-post="/createTask" hx-swap="beforeend" hx-target="#taskList" hx-trigger="submit" class="bg-white rounded-lg shadow-lg flex flex-col items-center gap-4 p-8 w-full">
            <h1 class="text-2xl font-semibold">Todo list</h1>  
-           <p>Insert a item on the list</p>
+           <p>Insert a item on the list. Click on it to mark as completed.</p>
            <div class="flex gap-2 w-full">
-               <input type="text" name="name" class="p-2 bg-slate-100 shadow w-full rounded-lg" />
+               <input type="text" name="name" class="p-2 bg-slate-100 w-full rounded-lg" />
                <button class="px-8 rounded-lg hover:bg-teal-500 transition-colors bg-teal-300">Add</button>
            </div>
        </form>

@@ -1,8 +1,8 @@
             <li class="w-full bg-white rounded-lg p-4 shadow-lg flex justify-between">
-                <span>
+                <span hx-swap="outerHTML" hx-target="closest li"  hx-patch="/toggleCompletedTask?id={{.Id}}" class="{{if .Completed}}line-through text-slate-700{{end}} cursor-pointer hover:text-slate-700 transition-colors">
                     {{.Name}}
                 </span>
                 <div class="flex gap-4">
-                    <button hx-swap="innerHTMl" hx-target="#taskList" hx-delete="/deleteTask?id={{.Id}}" class="text-red-400 cursor-pointer">Delete</span>
+                    <button hx-swap="outerHTML" hx-target="closest li" hx-delete="/deleteTask?id={{.Id}}" class="text-red-400 hover:text-red-500 transition-colors cursor-pointer">Delete</span>
                 </div>
             </li>
