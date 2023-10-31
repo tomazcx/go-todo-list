@@ -22,8 +22,8 @@ func (a *Account) FindByLogin(login string) (Account, error) {
 	}
 
 	var result Account
-	query := "SELECT login, password FROM account WHERE login=$1"
-	err = db.QueryRow(query, login).Scan(&result.Login, &result.Password)
+	query := "SELECT id, login, password FROM account WHERE login=$1"
+	err = db.QueryRow(query, login).Scan(&result.Id, &result.Login, &result.Password)
 
 	if err != nil {
 		return Account{}, err

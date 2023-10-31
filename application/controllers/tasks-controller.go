@@ -1,10 +1,12 @@
 package controllers
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
 	"strconv"
 
+	"github.com/tomazcx/go-todo-list/application/utils"
 	"github.com/tomazcx/go-todo-list/models"
 )
 
@@ -16,9 +18,24 @@ func (tc *TaskController) Index(w http.ResponseWriter, r *http.Request) {
 		template.Must(template.ParseFiles("./templates/not-found.html")).Execute(w, nil)
 		return
 	}
+	session := utils.GetStoreSession(r)
+	userId, ok := session.Values["userId"].(uint)
+
+	fmt.Println(userId)
+
+	if !ok {
+		http.Error(w, "Not alloed", http.StatusForbidden)
+		return
+	}
 
 	taskModel := models.Task{}
-	tasks, err := taskModel.Index()
+	tasks, err := taskModel.Index(userId)
+
+	if !ok {
+		http.Error(w, "Not alloed", http.StatusForbidden)
+		return
+	}
+
 	if err != nil {
 		http.Error(w, "Internal server error: Error fetching the tasks from the database.", http.StatusInternalServerError)
 		return
@@ -39,9 +56,16 @@ func (tc *TaskController) CreateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	taskModel := models.Task{}
+	session := utils.GetStoreSession(r)
+	userId, ok := session.Values["userId"].(uint)
+
+	if !ok {
+		http.Error(w, "Not alloed", http.StatusForbidden)
+		return
+	}
 
 	taskName := r.FormValue("name")
-	task, err := taskModel.Create(taskName)
+	task, err := taskModel.Create(taskName, userId)
 
 	if err != nil {
 		http.Error(w, "Internal server error: Error creating the task", http.StatusInternalServerError)

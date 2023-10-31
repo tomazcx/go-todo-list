@@ -39,19 +39,19 @@ func GetDB() (*sql.DB, error) {
 }
 
 func InitTables() error {
-	query := "CREATE TABLE IF NOT EXISTS task (id SERIAL PRIMARY KEY, name VARCHAR(255), completed BOOLEAN, createdAt TIMESTAMP)"
+	query := "CREATE TABLE IF NOT EXISTS account (id SERIAL PRIMARY KEY, login VARCHAR(255), password VARCHAR(255))"
 	_, err := db.Exec(query)
 
 	if err != nil {
-		log.Fatalf("Failed to create task table: %v", err)
+		log.Fatalf("Failed to create user table: %v", err)
 		return err
 	}
 
-	query = "CREATE TABLE IF NOT EXISTS account (id SERIAL PRIMARY KEY, login VARCHAR(255), password VARCHAR(255))"
+	query = "CREATE TABLE IF NOT EXISTS task (id SERIAL PRIMARY KEY, name VARCHAR(255), completed BOOLEAN, createdAt TIMESTAMP, user_id INTEGER, CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES account(id))"
 	_, err = db.Exec(query)
 
 	if err != nil {
-		log.Fatalf("Failed to create user table: %v", err)
+		log.Fatalf("Failed to create task table: %v", err)
 		return err
 	}
 

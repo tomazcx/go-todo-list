@@ -17,7 +17,7 @@ func GetStoreSession(r *http.Request) *sessions.Session {
 func SetUserSession(w http.ResponseWriter, r *http.Request, userId uint) error {
 	session, _ := store.Get(r, "todo-user")
 	session.Values["userId"] = userId
-	session.Options.MaxAge = 20
+	session.Options.MaxAge = 60 * 60 * 24
 	err := session.Save(r, w)
 	return err
 }

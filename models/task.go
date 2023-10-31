@@ -13,7 +13,7 @@ type Task struct {
 	Completed bool
 }
 
-func (t *Task) Index() ([]Task, error) {
+func (t *Task) Index(user_id uint) ([]Task, error) {
 	db, err := infra.GetDB()
 
 	if err != nil {
@@ -21,8 +21,8 @@ func (t *Task) Index() ([]Task, error) {
 		return nil, err
 	}
 
-	query := "SELECT id, name, completed FROM task ORDER BY createdat"
-	rows, err := db.Query(query)
+	query := "SELECT id, name, completed FROM task WHERE user_id = $1 ORDER BY createdat"
+	rows, err := db.Query(query, user_id)
 
 	if err != nil {
 		log.Fatal(fmt.Sprintf("Error running the SQL query: %v", err))
@@ -46,18 +46,18 @@ func (t *Task) Index() ([]Task, error) {
 
 }
 
-func (t *Task) Create(name string) (Task, error) {
+func (t *Task) Create(name string, user_id uint) (Task, error) {
 	db, err := infra.GetDB()
 
 	if err != nil {
 		log.Fatal("Error getting the DB instance.")
 		return Task{}, err
 	}
-	query := "INSERT INTO task (name, completed, createdAt) VALUES ($1, false, NOW()) RETURNING id, name, completed"
+	query := "INSERT INTO task (name, completed, createdAt, user_id) VALUES ($1, false, NOW(), $2) RETURNING id, name, completed"
 
 	var task Task
 
-	err = db.QueryRow(query, name).Scan(&task.Id, &task.Name, &task.Completed)
+	err = db.QueryRow(query, name, user_id).Scan(&task.Id, &task.Name, &task.Completed)
 
 	if err != nil {
 		log.Fatal(fmt.Sprintf("Error inserting the item into the database: %v", err))
