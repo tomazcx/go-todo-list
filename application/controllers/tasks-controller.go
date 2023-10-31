@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"html/template"
 	"net/http"
 	"strconv"
@@ -19,22 +18,10 @@ func (tc *TaskController) Index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	session := utils.GetStoreSession(r)
-	userId, ok := session.Values["userId"].(uint)
-
-	fmt.Println(userId)
-
-	if !ok {
-		http.Error(w, "Not alloed", http.StatusForbidden)
-		return
-	}
+	userId, _ := session.Values["userId"].(uint)
 
 	taskModel := models.Task{}
 	tasks, err := taskModel.Index(userId)
-
-	if !ok {
-		http.Error(w, "Not alloed", http.StatusForbidden)
-		return
-	}
 
 	if err != nil {
 		http.Error(w, "Internal server error: Error fetching the tasks from the database.", http.StatusInternalServerError)
@@ -57,12 +44,7 @@ func (tc *TaskController) CreateTask(w http.ResponseWriter, r *http.Request) {
 	}
 	taskModel := models.Task{}
 	session := utils.GetStoreSession(r)
-	userId, ok := session.Values["userId"].(uint)
-
-	if !ok {
-		http.Error(w, "Not alloed", http.StatusForbidden)
-		return
-	}
+	userId, _ := session.Values["userId"].(uint)
 
 	taskName := r.FormValue("name")
 	task, err := taskModel.Create(taskName, userId)

@@ -11,6 +11,7 @@ func UsesAuth(next http.HandlerFunc) http.HandlerFunc {
 		session := utils.GetStoreSession(r)
 
 		if _, ok := session.Values["userId"]; !ok {
+			w.Header().Set("HX-Redirect", "/login")
 			http.Redirect(w, r, "/login", http.StatusFound)
 			return
 		}

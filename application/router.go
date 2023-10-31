@@ -14,9 +14,9 @@ func Router() {
 
 	//TASK ROUTES
 	http.HandleFunc("/", middlewares.UsesAuth(taskController.Index))
-	http.HandleFunc("/createTask", taskController.CreateTask)
-	http.HandleFunc("/toggleCompletedTask", taskController.ToggleCompleted)
-	http.HandleFunc("/deleteTask", taskController.DeleteTask)
+	http.HandleFunc("/createTask", middlewares.UsesAuth(taskController.CreateTask))
+	http.HandleFunc("/toggleCompletedTask", middlewares.UsesAuth(taskController.ToggleCompleted))
+	http.HandleFunc("/deleteTask", middlewares.UsesAuth(taskController.DeleteTask))
 
 	//AUTH ROUTES
 	http.HandleFunc("/register", authController.Register)
