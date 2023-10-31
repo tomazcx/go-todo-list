@@ -8,6 +8,7 @@ import (
 )
 
 type Account struct {
+	Id       uint
 	Login    string
 	Password string
 }
@@ -41,8 +42,8 @@ func (a *Account) Create(login, password string) (Account, error) {
 	}
 
 	var result Account
-	query := "INSERT INTO account (login, password) VALUES ($1, $2) RETURNING login, password"
-	err = db.QueryRow(query, login, password).Scan(&result.Login, &result.Password)
+	query := "INSERT INTO account (login, password) VALUES ($1, $2) RETURNING id, login, password"
+	err = db.QueryRow(query, login, password).Scan(&result.Id, &result.Login, &result.Password)
 
 	if err != nil {
 		log.Fatal(fmt.Sprintf("Error creating account: %v", err))

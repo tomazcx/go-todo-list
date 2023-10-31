@@ -3,16 +3,13 @@ package controllers
 import (
 	"html/template"
 	"net/http"
-	"os"
 
-	"github.com/gorilla/sessions"
+	"github.com/tomazcx/go-todo-list/application/utils"
 	"github.com/tomazcx/go-todo-list/models"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthController struct{}
-
-var store = sessions.NewCookieStore([]byte(os.Getenv("SESSION_KEY")))
 
 func (ac *AuthController) Register(w http.ResponseWriter, r *http.Request) {
 	template.Must(template.ParseFiles("./templates/auth/register.html")).Execute(w, nil)
@@ -101,10 +98,7 @@ func (ac *AuthController) HandleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	session, _ := store.Get(r, "todo-user")
-	session.Values["auth"] = true
-
-	err = session.Save(r, w)
+	err = utils.SetUserSession(w, r, account.Id)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -115,6 +109,14 @@ func (ac *AuthController) HandleLogin(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(""))
 }
 
-func GetStoreSession() *sessions.CookieStore {
-	return store
+func (ac *AuthController) HandleLogOut(w http.ResponseWriter, r *http.Request) {
+	err := utils.ExpireSession(w, r)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/login", http.StatusFound)
+
 }

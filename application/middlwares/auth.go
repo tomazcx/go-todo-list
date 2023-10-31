@@ -1,19 +1,16 @@
 package middlewares
 
 import (
-	"fmt"
 	"net/http"
 
-	"github.com/tomazcx/go-todo-list/application/controllers"
+	"github.com/tomazcx/go-todo-list/application/utils"
 )
 
 func UsesAuth(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		store := controllers.GetStoreSession()
-		session, _ := store.Get(r, "todo-user")
+		session := utils.GetStoreSession(r)
 
-		if authenticaded, ok := session.Values["auth"].(bool); !authenticaded && !ok {
-			fmt.Println(authenticaded, ok)
+		if _, ok := session.Values["userId"]; !ok {
 			http.Redirect(w, r, "/login", http.StatusFound)
 			return
 		}

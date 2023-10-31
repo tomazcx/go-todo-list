@@ -24,4 +24,5 @@ func Router() {
 
 	http.HandleFunc("/auth/createAccount", authController.HandleRegister)
 	http.HandleFunc("/auth/login", authController.HandleLogin)
+	http.HandleFunc("/auth/logout", authController.HandleLogOut)
 }
